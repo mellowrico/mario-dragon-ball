@@ -1,6 +1,8 @@
 # Super Saiyan Bros. — Smocze Wyspy
 
-Przeglądarkowa platformówka 2D z własnymi postaciami i oprawą. Pokonuj przeszkody, zbieraj smocze kule i używaj energii KI przeciw przeciwnikom.
+[Zagraj w Super Saiyan Bros.](https://mellowrico.github.io/mario-dragon-ball/)
+
+Mario z fryzurą Goku ląduje na Smoczych Wyspach. Przeskocz cztery przepaście i pokonaj małe wersje Cella, Freezera i Buu, skacząc im na głowy. Siedem bloków ze znakiem zapytania kryje Smocze Kule. Już pierwsza powiększa bohatera i odblokowuje pociski ki. Celem jest flaga na końcu planszy.
 
 ## Uruchomienie lokalne
 
@@ -33,8 +35,6 @@ node --test
 
 ## GitHub Pages
 
-1. W ustawieniach repozytorium otwórz **Settings → Pages → Build and deployment** i wybierz **GitHub Actions** jako źródło.
-2. Workflow **GitHub Pages** uruchomi się po zmianach na `main`. Możesz też uruchomić go ręcznie w zakładce **Actions**, wybierając gałąź `main`.
-3. Po pomyślnym wdrożeniu gra będzie dostępna pod adresem [mellowrico.github.io/mario-dragon-ball](https://mellowrico.github.io/mario-dragon-ball/).
+Gra działa pod adresem [mellowrico.github.io/mario-dragon-ball](https://mellowrico.github.io/mario-dragon-ball/). Repozytorium publikuje katalog główny gałęzi `gh-pages` przez **Settings → Pages → Deploy from a branch**.
 
-Workflow uruchamia testy, a potem publikuje `index.html` i katalog `game/`.
+Po zmianie na `main` workflow **GitHub Pages** uruchamia testy mechaniki i sterowania oraz test w Chrome z widokiem desktopowym i mobilnym. Następnie synchronizuje pliki gry z gałęzią publikacji i zleca aktualizację GitHub Pages. Workflow można również uruchomić ręcznie z zakładki **Actions**.

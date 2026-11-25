@@ -49,6 +49,28 @@ test('jumping onto a live enemy defeats it and bounces the hero', () => {
   assert.ok(s.events.includes('stomp'))
 })
 
+test('collecting a dragon ball grows the hero and unlocks ranged ki damage', () => {
+  const s = createGame()
+  step(s, { fire: true })
+  assert.equal(s.shots.length, 0)
+  assert.equal(s.events.includes('ki'), false)
+  const p = s.player
+  const smallHeight = p.h
+  const smallWidth = p.w
+  s.pickups.push({ type: 'ball', stars: 1, x: p.x, y: 328, w: 24, h: 24, vx: 0, vy: 0 })
+  step(s)
+  assert.ok(p.h > smallHeight && p.w > smallWidth && p.powered)
+  assert.equal(s.balls, 1)
+  const enemy = s.enemies[0]
+  p.x = enemy.x - 130
+  step(s, { fire: true })
+  assert.equal(s.shots.length, 1)
+  assert.ok(s.events.includes('ki'))
+  until(s, {}, () => !enemy.alive)
+  assert.equal(s.shots.length, 0)
+  assert.equal(s.lives, 3)
+})
+
 test('a powered hero shrinks on a side hit and gets temporary protection', () => {
   const s = createGame()
   const e = s.enemies[0]

@@ -3,6 +3,7 @@ name: GitHub Pages
 on:
   push:
     branches: [main]
+    paths: [index.html, "game/**", "tests/**", ".github/workflows/pages.yml"]
   workflow_dispatch:
 
 permissions:
@@ -13,38 +14,71 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: read
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
           node-version: 24
-      - name: Run tests
+      - name: Test level and controls
         run: node --test
-      - uses: actions/configure-pages@v5
-      - name: Prepare the static site
+      - name: Test in desktop and mobile Chrome
+        shell: bash
         run: |
-          mkdir _site
-          cp -r index.html game _site/
-      - uses: actions/upload-pages-artifact@v4
+          python3 -m pip install playwright==1.56.0
+          mkdir -p "$RUNNER_TEMP/site/mario-dragon-ball"
+          cp -r index.html game "$RUNNER_TEMP/site/mario-dragon-ball/"
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory "$RUNNER_TEMP/site" &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          python3 tests/browser_smoke.py http://127.0.0.1:8765/mario-dragon-ball/ --screenshot "$RUNNER_TEMP/start.png"
+      - uses: actions/upload-artifact@v4
         with:
-          path: _site
+          name: ekran-startowy
+          path: ${{ runner.temp }}/start.png
 
-  deploy:
+  publish:
     if: github.ref == 'refs/heads/main'
-    needs: build
+    needs: test
     runs-on: ubuntu-latest
     permissions:
+      contents: write
       pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
     steps:
-      - name: Deploy to GitHub Pages
-        id: deploy
-        uses: actions/deploy-pages@v4
+      - uses: actions/checkout@v6
+      - name: Update the Pages source
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git fetch origin gh-pages:refs/remotes/origin/gh-pages
+          publish_dir="$RUNNER_TEMP/published"
+          git worktree add --detach "$publish_dir" origin/gh-pages
+          rsync -a --delete game/ "$publish_dir/game/"
+          cp index.html "$publish_dir/index.html"
+          touch "$publish_dir/.nojekyll"
+          echo "$GITHUB_SHA" > "$publish_dir/version.txt"
+          git -C "$publish_dir" add .nojekyll index.html game version.txt
+          if ! git -C "$publish_dir" diff --cached --quiet; then
+            git -C "$publish_dir" -c user.name=github-actions -c user.email=41898282+github-actions[bot]@users.noreply.github.com commit -m "Publish game from $GITHUB_SHA"
+            git -C "$publish_dir" push origin HEAD:refs/heads/gh-pages
+          fi
+          # A token-authored push does not trigger a Pages build. Request one on retries too.
+          gh api --method POST "repos/$GITHUB_REPOSITORY/pages/builds" --silent
+      - name: Verify the published revision
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          page_url=$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq .html_url)
+          for attempt in {1..36}; do
+            if [[ "$(curl -fsSL --max-time 8 "${page_url%/}/version.txt?rev=$GITHUB_SHA&attempt=$attempt" || true)" == "$GITHUB_SHA" ]]; then
+              curl -fsSL "${page_url%/}/?rev=$GITHUB_SHA" | cmp index.html -
+              echo "Game published at $page_url" >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "GitHub Pages has not served $GITHUB_SHA yet." >&2
+          exit 1

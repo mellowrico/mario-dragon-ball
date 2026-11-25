@@ -52,7 +52,17 @@ function mountains(ctx, skyline, floor, colors) {
       const end=skyline[i+2],ey=skyline[i+3];
       const ridge = Math.round((end-x)*0.38);
       poly(ctx,[x,y,end,ey,end+10,floor,x+ridge,floor,x+ridge+3,y+20,x+ridge-2,y+18,x+ridge,y+13,x+2,y+6],colors[1]);
-      if(colors[2]) poly(ctx,[x-2,y+2,x,y,x+3,y+7,x+1,y+6,x-1,y+8,x-2,y+6,x-5,y+9],colors[2]);
+      if(colors[2]) {
+        poly(ctx,[x-2,y+2,x,y,x+3,y+7,x+1,y+6,x-1,y+8,x-2,y+6,x-5,y+9],colors[2]);
+        const leftX=skyline[i-2],leftY=skyline[i-1];
+        if(x-leftX>12) {
+          const midX=Math.round((x+leftX)/2),midY=Math.round((y+leftY)/2);
+          poly(ctx,[midX,midY,midX+4,midY-2,midX+1,midY+3,midX+2,midY+4,midX-5,midY+12,midX-4,midY+8,midX-7,midY+10], '#91dcd0');
+          poly(ctx,[x+2,y+9,x+5,y+16,x+5,y+20,x+7,y+23,x+6,y+26,x+9,y+32,x+5,y+29,x+4,y+24,x+2,y+21,x+3,y+18], '#77cfc6');
+        }
+      } else if(end-x>8) {
+        poly(ctx,[x+1,y+4,x+4,y+8,x+3,y+11,x+6,y+17,x+4,y+16,x+2,y+12,x+2,y+9], '#78c6ae');
+      }
     }
   }
 }
@@ -120,6 +130,13 @@ function scenery(ctx) {
     let x=Math.round(r()*650), y=118+Math.round(r()*8);
     rect(ctx,x,y,6+r()*30,2,'#86cdb1');
   }
+  // A chain of wooded foothills breaks the steep profile into the shoreline.
+  const banks=[-4,125,9,122,21,122,27,120,38,120,44,117,54,117,64,112,71,112,75,109,83,109,93,115,105,115,118,120,128,120,135,124,169,124,184,122,199,123,207,120,219,121,230,117,244,117,254,113,260,114,269,112,277,115,286,114,300,120,317,121,333,118,346,119,361,115,368,115,375,111,385,111,398,119,410,120,420,123,436,123,452,120,461,120,472,117,490,117,505,121,526,125,540,123,555,120,569,120,581,115,592,115,604,111,615,114,629,114,644,120,660,122];
+  poly(ctx,[0,127,...banks,660,127],'#70bda0');
+  for(let i=2;i<banks.length;i+=4){
+    rect(ctx,banks[i]+2,banks[i+1]+2,5,1,'#8bcba8');
+    rect(ctx,banks[i]-3,banks[i+1]+4,3,1,'#8bcba8');
+  }
   // The water reflects the sky at the horizon and becomes saturated towards shore.
   rect(ctx,0,126,660,84,'#81dacf');
   rect(ctx,0,134,660,76,'#61cfc5');
@@ -145,9 +162,17 @@ let skyLayer, farLayer, cloudLayer;
 export function landscape(ctx,camera,time) {
   if(!skyLayer){
     skyLayer=offscreen(480,210,c=>{
-      const colors=['#389bc3','#42a7ca','#51b3d0','#63bfd4','#75cbd7','#88d6da','#a1e2d8'];
-      colors.forEach((color,i)=>rect(c,0,i*17,480,19,color));
-      rect(c,0,118,480,92,'#a1e2d8');
+      const zenith=[48,153,196],horizon=[162,228,217];
+      for(let y=0;y<122;y+=3){
+        const mix=y/122;
+        const rgb=zenith.map((v,i)=>Math.round(v+(horizon[i]-v)*mix));
+        rect(c,0,y,480,3,'rgb('+rgb.join(',')+')');
+      }
+      rect(c,0,122,480,88,'#a2e4d9');
+      const birds=[[233,43],[238,40],[367,54]];
+      for(const [x,y] of birds){
+        rect(c,x,y,2,1,'#629fa6');rect(c,x+2,y+1,1,1,'#629fa6');rect(c,x+3,y,2,1,'#629fa6');
+      }
       // A warm little Namekian moon with stepped pixel highlights.
       poly(c,[388,19,393,19,393,17,402,17,402,18,408,18,408,20,411,20,411,23,414,23,414,28,415,28,415,35,413,35,413,39,410,39,410,42,405,42,405,44,393,44,393,42,388,42,388,40,385,40,385,36,383,36,383,26,385,26,385,22,388,22],'#e2e8be');
       poly(c,[388,21,392,21,392,19,404,19,404,21,409,21,409,25,412,25,412,32,409,32,409,35,405,35,405,37,396,37,396,36,391,36,391,34,387,34,387,31,385,31,385,26,388,26], '#f6efc7');
