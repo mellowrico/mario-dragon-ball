@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#12121c">
+  <title>Super Saiyan Bros. · Ki Arcade</title>
+  <link rel="icon" href="./game/icon.png">
+  <link rel="stylesheet" href="./game/style.css">
+</head>
+<body>
+  <svg class="symbols" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-sound" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3zM16 8q4 4 0 8m3-11q7 7 0 14"/></symbol>
+    <symbol id="i-mute" viewBox="0 0 24 24"><path d="M3 9h4l5-4v14l-5-4H3zM16 9l6 6m0-6-6 6"/></symbol>
+    <symbol id="i-full" viewBox="0 0 24 24"><path d="M3 9V3h6m6 0h6v6m0 6v6h-6m-6 0H3v-6"/></symbol>
+    <symbol id="i-pad" viewBox="0 0 24 24"><path d="M7 6h10l3 3 2 9-2 2-5-4H9l-5 4-2-2 2-9zM5 11h6m-3-3v6m7-3h1m2 2h1"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V3m1 1h13l-3 4 3 4H6"/></symbol>
+    <symbol id="i-map" viewBox="0 0 24 24"><path d="m2 19 7-13 4 7 3-4 6 10zm5-10 2 3 2-3"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M7 5h3v14H7zm7 0h3v14h-3z" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M6 3v18l15-9z" fill="currentColor" stroke="none"/></symbol>
+  </svg>
+  <header class="topbar">
+    <div class="top-inner">
+      <div class="brand" aria-label="Ki Arcade"><img src="./game/icon.png" alt=""><span>KI<span class="brand-slash">/</span>ARCADE</span></div>
+      <div class="utilities">
+        <button id="sound" class="utility" aria-label="Wyłącz dźwięk" aria-pressed="true"><svg><use href="#i-sound"/></svg><span>Dźwięk</span><i class="toggle"></i></button>
+        <span class="divider"></span>
+        <button id="fullscreen" class="utility" aria-label="Pełny ekran"><svg><use href="#i-full"/></svg><span>Pełny ekran</span></button>
+      </div>
+    </div>
+  </header>
+  <main class="arcade">
+    <section class="machine" aria-label="Automat Super Saiyan Bros.">
+      <div class="levelbar"><div class="levelname"><svg><use href="#i-map"/></svg><b>ŚWIAT 1-1</b><i></i><span>Smocze Wyspy</span></div><div class="state"><i></i><span id="mode">GOTOWY</span></div></div>
+      <div class="cabinet">
+        <i class="screw tl"></i><i class="screw tr"></i><i class="screw bl"></i><i class="screw br"></i>
+        <div class="display">
+          <div class="hud">
+            <div class="stat"><span>ŻYCIA</span><strong id="lives" aria-label="3 życia"></strong></div>
+            <div class="stat"><span>MONETY</span><strong><i class="coin-icon"></i><b id="coins">00</b></strong></div>
+            <div class="stat"><span>SMOCZE KULE</span><strong><i class="ball-icon">★</i><b id="balls">0</b></strong></div>
+            <div class="stat score"><span>WYNIK</span><strong id="score">000000</strong></div>
+            <button id="pause" class="pause" aria-label="Pauza" disabled><svg><use href="#i-pause"/></svg></button>
+          </div>
+          <div class="playfield" id="playfield">
+            <canvas id="world" width="960" height="420" role="img" aria-label="Plansza gry Smocze Wyspy"></canvas>
+            <div class="overlay" id="overlay">
+              <div id="welcome" class="welcome">
+                <h1 class="logo"><img class="hero" src="./game/poster-hero.png" alt=""><img class="title-art" src="./game/title.png" alt="Super Saiyan Bros."></h1>
+                <button id="start" class="start"><svg><use href="#i-play"/></svg>ROZPOCZNIJ GRĘ</button>
+                <span class="enter-hint">lub naciśnij <kbd>ENTER</kbd></span>
+              </div>
+              <div id="dialog" class="dialog" hidden>
+                <h2 id="dialog-title"></h2><p id="dialog-text"></p>
+                <button id="primary" class="start"></button>
+                <button id="restart" class="secondary">Zacznij od nowa</button>
+              </div>
+            </div>
+            <div class="announcement" id="announcement" role="status"></div>
+          </div>
+          <div class="progressbar"><svg><use href="#i-flag"/></svg><span>POSTĘP</span><div class="track" role="progressbar" aria-label="Postęp planszy" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="progress"></i></div><strong id="percent">0%</strong></div>
+        </div>
+      </div>
+    </section>
+    <div class="touch-controls">
+      <div id="stick" class="stick" role="group" aria-label="Drążek ruchu w lewo i w prawo"><span>◀</span><i></i><span>▶</span></div>
+      <div class="touch-actions"><button id="touch-jump">▲<small>SKOK</small></button><button id="touch-fire">ϟ<small>ATAK KI</small></button></div>
+    </div>
+    <section class="controls" aria-label="Sterowanie klawiaturą">
+      <h2><svg><use href="#i-pad"/></svg>Sterowanie</h2>
+      <div><span class="keyset"><kbd>A</kbd><kbd>D</kbd><em>/</em><kbd>←</kbd><kbd>→</kbd></span><span>Ruch</span></div>
+      <div><span class="keyset"><kbd>W</kbd><em>/</em><kbd>↑</kbd></span><span>Skok</span></div>
+      <div><kbd>SPACJA</kbd><span>Atak ki</span></div>
+      <div><kbd>ESC</kbd><span>Pauza</span></div>
+    </section>
+    <aside class="tip"><span class="qblock" aria-hidden="true">?</span><p><b>Wskazówka</b> Uderz w blok od dołu i złap Smoczą Kulę, aby odblokować atak ki.</p></aside>
+  </main>
+  <script type="module" src="./game/main.mjs"></script>
+</body>
+</html>
