@@ -19,6 +19,14 @@ function stone(ctx,x,y,w,h,tint,n){
   rect(ctx,x+notch,y,w-notch-4,1,light);
   rect(ctx,x+2,y+2,Math.max(2,w*.39),1,light);
   if(n%3===0)rect(ctx,x+notch,y,Math.max(2,w*.23),1,lit);
+  if(n%4===0){
+    rect(ctx,x+3,y+3,2,1,light);
+    rect(ctx,x+5,y+4,1,1,light);
+  }
+  if(n%7===0 && w>13){
+    rect(ctx,x+w-5,y+1,1,2,dark);
+    rect(ctx,x+w-6,y+3,1,1,dark);
+  }
   if(w>13){
     rect(ctx,x+w-7,y+h-4,3,1,dark);
     if(n%2===0)rect(ctx,x+w-10,y+h-3,3,1,dark);
@@ -36,6 +44,7 @@ function grass(ctx,w,seed){
     rect(ctx,i+1,3,Math.max(3,size*.6),2,'#6ab03d');
     if(j%2===0)rect(ctx,i+4,1,2,2,'#a1d648');
     if(j%3===0)rect(ctx,i,0,4,1,'#f1ed87');
+    if(j%2===0){rect(ctx,i+3,3,2,1,'#b3d94f');rect(ctx,i+5,2,1,1,'#d6e967');}
     i+=size;
   }
 }
